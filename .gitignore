@@ -1,5 +1,6 @@
 # binaries
 bin/
+releases/
 *.exe
 
 # data (local)

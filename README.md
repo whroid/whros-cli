@@ -11,6 +11,12 @@
 
 ## 安装
 
+### 一键安装 (推荐)
+
+```bash
+curl -fsSL https://gitee.com/tuoju/whros-cli/raw/main/install.sh | bash
+```
+
 ### Go install
 
 ```bash

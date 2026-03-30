@@ -80,7 +80,7 @@ download() {
     fi
 
     local filename="${BINARY_NAME}-${os}-${arch}${ext}"
-    url="https://gitee.com/${REPO}/releases/download/v${version}/${filename}"
+    url="https://gitee.com/${REPO}/raw/main/releases/${filename}"
 
     echo "Downloading $filename..."
     echo "URL: $url"
@@ -89,9 +89,22 @@ download() {
     trap "rm -f $tmpfile" EXIT
 
     if ! curl -L -o "$tmpfile" "$url" 2>/dev/null; then
-        echo "Failed to download. Please check if version v${version} exists."
-        echo "Create release at: https://gitee.com/${REPO}/releases"
-        exit 1
+        echo "Failed to download from raw URL, trying archive..."
+        local archive_url="https://gitee.com/${REPO}/archive/main.zip"
+        if curl -L -o "$tmpfile.zip" "$archive_url" 2>/dev/null; then
+            unzip -j "$tmpfile.zip" "whros-cli-main/releases/${filename}" -d /tmp/whros-extract 2>/dev/null || \
+            unzip -j "$tmpfile.zip" "*/releases/${filename}" -d /tmp/whros-extract 2>/dev/null || {
+                echo "Failed to extract binary from archive."
+                echo "Please download manually from: https://gitee.com/${REPO}"
+                exit 1
+            }
+            mv "/tmp/whros-extract/${filename}" "$tmpfile"
+            rm -f "$tmpfile.zip"
+        else
+            echo "Failed to download. Please check if the binary exists."
+            echo "Repository: https://gitee.com/${REPO}"
+            exit 1
+        fi
     fi
 
     local dest="${INSTALL_DIR}/${BINARY_NAME}${ext}"

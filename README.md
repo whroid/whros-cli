@@ -14,22 +14,25 @@
 ### 一键安装 (推荐)
 
 ```bash
-curl -fsSL https://gitee.com/tuoju/whros-cli/archive/main.zip -o /tmp/whros-cli.zip && unzip -j /tmp/whros-cli.zip "whros-cli-main/releases/whros-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m)" -d /tmp && mv /tmp/whros-* /usr/local/bin/whros && chmod +x /usr/local/bin/whros && rm -f /tmp/whros-cli.zip
+curl -fsSL https://raw.githubusercontent.com/whroid/whros-cli/main/install.sh | bash
 ```
 
-或者更简单的方式 - 手动下载 releases 目录中的二进制文件并添加到 PATH。
+或者直接下载二进制：
+
+```bash
+curl -L https://github.com/whroid/whros-cli/releases/latest/download/whros-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m) -o /usr/local/bin/whros && chmod +x /usr/local/bin/whros
+```
 
 ### Go install
 
 ```bash
-go install github.com/tuoju/whros-cli@latest
+go install github.com/whroid/whros-cli@latest
 ```
 
 ### Homebrew (macOS)
 
 ```bash
-brew tap tuoju/whros
-brew install whros
+brew install whroid/tap/whros-cli
 ```
 
 ## 构建

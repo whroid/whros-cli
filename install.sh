@@ -2,7 +2,7 @@
 
 set -e
 
-REPO="tuoju/whros-cli"
+REPO="whroid/whros-cli"
 BINARY_NAME="whros"
 INSTALL_DIR="${INSTALL_DIR:-/usr/local/bin}"
 VERSION="latest"
@@ -70,44 +70,25 @@ download() {
     local os="${platform%:*}"
     local arch="${platform#*:}"
     local ext=""
-    local url="https://gitee.com/${REPO}/archive/main.zip"
+    local base_url="https://github.com/${REPO}/releases/download"
 
     [ "$os" = "windows" ] && ext=".exe"
 
-    if [ "$version" != "latest" ] && [ "$version" != "main" ]; then
-        url="https://gitee.com/${REPO}/archive/v${version}.zip"
-    fi
-
     local filename="${BINARY_NAME}-${os}-${arch}${ext}"
-    url="https://gitee.com/${REPO}/archive/main.zip"
-
-    echo "Downloading $filename..."
-    echo "URL: $url"
-
     local tmpfile=$(mktemp)
-    local tmpdir=$(mktemp -d)
-    trap "rm -f '$tmpfile'; rm -rf '$tmpdir'" EXIT
+    trap "rm -f '$tmpfile'" EXIT
 
-    if ! curl -L -o "$tmpfile" "$url" 2>/dev/null; then
-        echo "Failed to download archive. Please download manually from: https://gitee.com/${REPO}"
+    local tag="$version"
+
+    local download_url="${base_url}/${tag}/${filename}"
+    echo "Downloading $filename..."
+    echo "URL: $download_url"
+
+    if ! curl -L -o "$tmpfile" "$download_url" 2>/dev/null; then
+        echo "Failed to download. Please check if the release exists."
+        echo "Repository: https://github.com/${REPO}/releases"
         exit 1
     fi
-
-    unzip -j "$tmpfile" "whros-cli-main/releases/${filename}" -d "$tmpdir" 2>/dev/null || \
-    unzip -j "$tmpfile" "*/releases/${filename}" -d "$tmpdir" 2>/dev/null || {
-        echo "Failed to extract binary from archive."
-        echo "Please download manually from: https://gitee.com/${REPO}/releases"
-        exit 1
-    }
-
-    local extracted_file=$(find "$tmpdir" -name "$filename" -type f 2>/dev/null | head -1)
-    if [ -z "$extracted_file" ] || [ ! -f "$extracted_file" ]; then
-        echo "Binary not found in archive: $filename"
-        echo "Please check if the binary exists in releases directory."
-        exit 1
-    fi
-
-    cp "$extracted_file" "$tmpfile"
 
     local dest="${INSTALL_DIR}/${BINARY_NAME}${ext}"
     cp "$tmpfile" "$dest"

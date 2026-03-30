@@ -161,3 +161,22 @@ make clean
 # 完整构建
 make all
 ```
+
+## Gitee Access Token 获取
+
+1. 登录 Gitee：https://gitee.com
+2. 进入个人设置 → 私人令牌 → 获取私人令牌
+3. 点击 "生成新令牌"，填写备注信息
+4. 勾选权限：
+   - `projects` - 项目操作
+   - `releases` - 发布版本操作
+5. 点击提交，复制生成的 Token
+
+## Token 配置
+
+Token 文件路径：`/opt/settings/whros-local.properties`
+
+内容格式：
+```properties
+gitee.access-token=你的Gitee_ACCESS_TOKEN
+```

@@ -11,22 +11,16 @@
 
 ## 安装
 
-### npm 安装 (推荐)
-
-```bash
-npm install -g whros
-```
-
 ### Go install
 
 ```bash
-go install github.com/你的用户名/whros-cli@latest
+go install github.com/tuoju/whros-cli@latest
 ```
 
 ### Homebrew (macOS)
 
 ```bash
-brew tap 你的用户名/whros
+brew tap tuoju/whros
 brew install whros
 ```
 

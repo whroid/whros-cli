@@ -70,42 +70,44 @@ download() {
     local os="${platform%:*}"
     local arch="${platform#*:}"
     local ext=""
-    local url
+    local url="https://gitee.com/${REPO}/archive/main.zip"
 
     [ "$os" = "windows" ] && ext=".exe"
 
-    if [ "$version" = "latest" ]; then
-        local api_url="https://gitee.com/api/v5/repos/${REPO}/releases/latest"
-        version=$(curl -s "$api_url" | grep -o '"tag_name":[^,]*' | sed 's/"tag_name": "//;s/",//' | sed 's/^v//')
+    if [ "$version" != "latest" ] && [ "$version" != "main" ]; then
+        url="https://gitee.com/${REPO}/archive/v${version}.zip"
     fi
 
     local filename="${BINARY_NAME}-${os}-${arch}${ext}"
-    url="https://gitee.com/${REPO}/raw/main/releases/${filename}"
+    url="https://gitee.com/${REPO}/archive/main.zip"
 
     echo "Downloading $filename..."
     echo "URL: $url"
 
     local tmpfile=$(mktemp)
-    trap "rm -f $tmpfile" EXIT
+    local tmpdir=$(mktemp -d)
+    trap "rm -f '$tmpfile'; rm -rf '$tmpdir'" EXIT
 
     if ! curl -L -o "$tmpfile" "$url" 2>/dev/null; then
-        echo "Failed to download from raw URL, trying archive..."
-        local archive_url="https://gitee.com/${REPO}/archive/main.zip"
-        if curl -L -o "$tmpfile.zip" "$archive_url" 2>/dev/null; then
-            unzip -j "$tmpfile.zip" "whros-cli-main/releases/${filename}" -d /tmp/whros-extract 2>/dev/null || \
-            unzip -j "$tmpfile.zip" "*/releases/${filename}" -d /tmp/whros-extract 2>/dev/null || {
-                echo "Failed to extract binary from archive."
-                echo "Please download manually from: https://gitee.com/${REPO}"
-                exit 1
-            }
-            mv "/tmp/whros-extract/${filename}" "$tmpfile"
-            rm -f "$tmpfile.zip"
-        else
-            echo "Failed to download. Please check if the binary exists."
-            echo "Repository: https://gitee.com/${REPO}"
-            exit 1
-        fi
+        echo "Failed to download archive. Please download manually from: https://gitee.com/${REPO}"
+        exit 1
     fi
+
+    unzip -j "$tmpfile" "whros-cli-main/releases/${filename}" -d "$tmpdir" 2>/dev/null || \
+    unzip -j "$tmpfile" "*/releases/${filename}" -d "$tmpdir" 2>/dev/null || {
+        echo "Failed to extract binary from archive."
+        echo "Please download manually from: https://gitee.com/${REPO}/releases"
+        exit 1
+    }
+
+    local extracted_file=$(find "$tmpdir" -name "$filename" -type f 2>/dev/null | head -1)
+    if [ -z "$extracted_file" ] || [ ! -f "$extracted_file" ]; then
+        echo "Binary not found in archive: $filename"
+        echo "Please check if the binary exists in releases directory."
+        exit 1
+    fi
+
+    cp "$extracted_file" "$tmpfile"
 
     local dest="${INSTALL_DIR}/${BINARY_NAME}${ext}"
     cp "$tmpfile" "$dest"

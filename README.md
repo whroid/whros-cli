@@ -14,8 +14,10 @@
 ### 一键安装 (推荐)
 
 ```bash
-curl -fsSL https://gitee.com/tuoju/whros-cli/raw/main/install.sh | bash
+curl -fsSL https://gitee.com/tuoju/whros-cli/archive/main.zip -o /tmp/whros-cli.zip && unzip -j /tmp/whros-cli.zip "whros-cli-main/releases/whros-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m)" -d /tmp && mv /tmp/whros-* /usr/local/bin/whros && chmod +x /usr/local/bin/whros && rm -f /tmp/whros-cli.zip
 ```
+
+或者更简单的方式 - 手动下载 releases 目录中的二进制文件并添加到 PATH。
 
 ### Go install
 
